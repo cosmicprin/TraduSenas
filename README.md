@@ -39,21 +39,26 @@
   - Microcontrolador: ESP32/IdeaBoard
   - Sensores/actuadores: Sensores de Flexión 
   - LLM/API: API local para conversión de señas a texto (sin uso de LLM actualmente).
-  - Librerías y herramientas:
+
+### Librerías y herramientas:
   
-    Librería: IdeaBoard
-    Módulos: socketpool, ssl, wifi
-    Librería: adafruit_requests
-    Módulos: json, time, board
-    IDE: Visual Studio Code, Thonny
+  - Librería: IdeaBoard
+  - Módulos: socketpool, ssl, wifi
+    
+  - Librería: adafruit_requests
+  - Módulos: json, time, board
+    
+  - IDE: Visual Studio Code, Thonny
 
 
-- **Bocetos o esquemas:**  
-  *(Agregar imágenes o diagramas si es posible)*  
-
+- **Bocetos o esquemas:**
+  
+  ![435d46ff-e6c8-487b-b2b1-e61f61e1161c](https://github.com/user-attachments/assets/79891ffc-639a-4970-b803-70fa446ac21d)
+  
 ## 6. Plan de Trabajo
-- **Cronograma preliminar:**  
-  *(Breve tabla con hitos importantes y fechas estimadas)*  
+- **Cronograma preliminar:**
+  
+  ![48159d65-4aab-46b7-a6fc-7cadfa701b19](https://github.com/user-attachments/assets/e788e006-088e-44e9-83c3-92dfb425b4fc)
 
 - **Riesgos identificados y mitigaciones:**  
   - Riesgo 1: Mitigación  
@@ -68,4 +73,3 @@
 
 ---
 > **Nota:** Este avance busca documentar el pensamiento del equipo en las fases iniciales del proyecto. No es necesario que el sistema esté funcionando aún, o que absolutamente todos los puntos de esta plantilla estén copletos
-
