@@ -61,8 +61,8 @@
   ![48159d65-4aab-46b7-a6fc-7cadfa701b19](https://github.com/user-attachments/assets/e788e006-088e-44e9-83c3-92dfb425b4fc)
 
 - **Riesgos identificados y mitigaciones:**  
-  - Riesgo 1: Mitigación  
-  - Riesgo 2: Mitigación  
+  - Riesgo 1: No encontrar fuente de poder. Mitigación: conectar el ssistema directamente a la laptop.
+  - Riesgo 2: No encontrar el diseño 3D para la placa del guante. Mitigación: hacerlo a mano.
 
 ## 7. Prototipos conceptuales (si aplica)
 - **Código mínimo de prueba:**  
