@@ -7,7 +7,7 @@
 
 ## 2. Descripción y Justificación
 - **Problema que se aborda:** El aprendizaje de LESCO en entornos educativos es limitado por la falta de recursos interactivos. TraduSeñas aborda esta necesidad ofreciendo una herramienta tecnológica que facilita la enseñanza y práctica del alfabeto LESCO.
-- **Importancia y contexto:** 
+- **Importancia y contexto:** Dar un avance en la educacion interactiva del LESCO en Costa Rica
 - **Usuarios/beneficiarios:**  
 
 ## 3. Objetivos del Proyecto
