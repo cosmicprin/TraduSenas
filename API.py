@@ -1,6 +1,8 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, abort
 from werkzeug.exceptions import HTTPException, BadRequest
 import numpy as np
+
+
 
 app = Flask(__name__)
 
@@ -81,20 +83,21 @@ def index():
         }
     })
 
-@app.route("/reconocer_letra", methods=["POST"])
+#Un metodo GET para traerse los datos del JSON
+
+
+
+@app.route("/reconocer_letra", methods=["GET"])
 def reconocer_letra():
-    data = request.get_json()
-
-    if not data:
-        raise BadRequest("No se recibieron datos JSON válidos.")
+    # Usar getlist para obtener todos los valores del parámetro 'sensores'
+    valores_sensores_str = request.args.getlist("sensores")
     
-    valores_sensores = data.get("sensores")
-
-    if not valores_sensores or not isinstance(valores_sensores, list):
-        raise BadRequest("El JSON debe contener una clave 'sensores' con una lista de valores numéricos.")
+    if not valores_sensores_str:
+        raise BadRequest("El parámetro 'sensores' es requerido.")
     
     try:
-        valores_sensores = [float(v) for v in valores_sensores]
+        # Convertir cada valor de la lista a float
+        valores_sensores = [float(v) for v in valores_sensores_str]
     except ValueError:
         raise BadRequest("Todos los valores de los sensores deben ser números.")
     
@@ -102,11 +105,14 @@ def reconocer_letra():
     if len(valores_sensores) != NUM_SENSORES_ESPERADOS:
         raise BadRequest(f"Se esperaban {NUM_SENSORES_ESPERADOS} valores de sensores, pero se recibieron {len(valores_sensores)}.")
 
+    # A partir de aquí, tu lógica de reconocimiento debería ser la misma
     try:
         letra_reconocida = simular_reconocimiento_ml(valores_sensores)
         return jsonify({"letra_reconocida": letra_reconocida})
     except Exception as e:
         return jsonify({"error": "Fallo al reconocer la letra", "mensaje": str(e)}), 500
 
+
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=5000)
+    
