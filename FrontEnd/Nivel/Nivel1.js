@@ -1,7 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
   const usuario = sessionStorage.getItem('usuario');
   const navbar = document.querySelector('.navbar .container');
+  const inputLetra = document.getElementById('singleLetterInput');
+  const btnGenerar = document.querySelector('input[value="Generar Imagen"]');
+  const btnAleatorio = document.querySelector('input[value="Generar Aleatorio"]');
+  const btnValidar = document.querySelector('input[value="Validar mi Seña"]');
+  const imgDisplay = document.querySelector('img.rounded');
+  let puntaje = 0;
+  const scoreDisplay = document.getElementById('score');
 
+  const valoresSensores = [0.1, 0.9, 0.9, 0.9, 0.9];
 //Nav
   if (usuario) {
     const userDisplay = document.createElement('span');
@@ -21,12 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = '../Home/index.html';
   }
 
-  // Funcionalidad de imagen
-  const inputLetra = document.getElementById('singleLetterInput');
-  const btnGenerar = document.querySelector('input[value="Generar Imagen"]');
-  const btnAleatorio = document.querySelector('input[value="Generar Aleatorio"]');
-  const btnValidar = document.querySelector('input[value="Validar mi Seña"]');
-  const imgDisplay = document.querySelector('img.rounded');
 
   const mostrarImagen = (letra) => {
     const letraMayus = letra.toUpperCase();
@@ -57,68 +59,85 @@ document.addEventListener('DOMContentLoaded', () => {
     mostrarImagen(aleatoria);
   });
 
-//validar seña
+
 btnValidar.addEventListener('click', async () => {
-    const letraUsuario = inputLetra.value.trim().toUpperCase();
+  const letraUsuario = inputLetra.value.trim().toUpperCase();
 
-    // 1. Validar que el usuario haya escrito una letra
-    if (!/^[A-Z]$/.test(letraUsuario)) {
+  if (!/^[A-Z]$/.test(letraUsuario)) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Letra inválida',
+      text: 'Ingresa una letra válida (A–Z) antes de validar',
+      confirmButtonColor: '#0d6efd'
+    });
+    return;
+  }
+
+  try {
+    const response = await axios.post('http://192.168.100.5:5000/reconocer_letra', {
+      sensores: valoresSensores
+    });
+
+    const letraReconocida = response.data.letra_reconocida;
+
+    if (letraReconocida === letraUsuario) {
+      puntaje = Math.min(puntaje + 5, 25);
+      scoreDisplay.textContent = puntaje;
+
+      Swal.fire({
+        icon: 'success',
+        title: '¡Correcto!',
+        text: `La seña coincide con la letra "${letraUsuario}"`,
+        showClass: {
+          popup: 'animate__animated animate__bounceIn'
+        },
+        hideClass: {
+          popup: 'animate__animated animate__fadeOutUp'
+        },
+        confirmButtonColor: '#198754'
+      });
+
+      if (puntaje === 25) {
         Swal.fire({
-            icon: 'warning',
-            title: 'Letra inválida',
-            text: 'Por favor, ingresa una letra de la A a la Z para validar tu seña.',
-            confirmButtonColor: '#0d6efd'
+          icon: 'info',
+          title: '¡Nivel completado!',
+          text: 'Has alcanzado 25 puntos. Puedes avanzar al Nivel 2',
+          confirmButtonText: 'Ir al siguiente nivel',
+          confirmButtonColor: '#0d6efd'
+        }).then(() => {
+          window.location.href = '../Nivel/Nivel2.html'; 
         });
-        return;
+      }
+
+    } else {
+      puntaje = Math.max(puntaje - 1, 0);
+      scoreDisplay.textContent = puntaje;
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Incorrecto',
+        text: `La seña detectada fue "${letraReconocida}", no coincide con "${letraUsuario}"`,
+        showClass: {
+          popup: 'animate__animated animate__shakeX'
+        },
+        hideClass: {
+          popup: 'animate__animated animate__fadeOutDown'
+        },
+        confirmButtonColor: '#dc3545'
+      });
     }
 
-    try {
-        // 2. Llamar a la API para validar. 
-        // ¡Asegúrate de que la IP sea la de la computadora donde corre Flask!
-            const response = await axios.post('http://192.168.43.20:5000/actualizar_sensores', {
-            letra_a_validar: letraUsuario // Enviamos la letra que el usuario quiere practicar
-        });
-
-        const resultado = response.data; // La API nos devuelve si es correcto, qué letra detectó, etc.
-
-        // 3. Mostrar el resultado con una animación
-        if (resultado.es_correcta) {
-            Swal.fire({
-                icon: 'success',
-                title: '¡Correcto!',
-                text: `Tu seña coincide con la letra "${resultado.letra_esperada}"`,
-                showClass: { popup: 'animate__animated animate__bounceIn' },
-                hideClass: { popup: 'animate__animated animate__fadeOutUp' },
-                confirmButtonColor: '#198754'
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: '¡Vuelve a intentarlo!',
-                text: `La seña que hiciste fue reconocida como "${resultado.letra_reconocida}", pero se esperaba la letra "${resultado.letra_esperada}"`,
-                showClass: { popup: 'animate__animated animate__shakeX' },
-                hideClass: { popup: 'animate__animated animate__fadeOutDown' },
-                confirmButtonColor: '#dc3545'
-            });
-        }
-    } catch (error) {
-        // 4. Manejar errores de conexión con la API
-        let mensajeError = 'No se pudo validar la seña. Verifica que el servidor de la API esté activo.';
-        // Si la API nos dio un mensaje de error específico (como que el guante está desconectado), lo mostramos
-        if (error.response && error.response.data && error.response.data.error) {
-            mensajeError = error.response.data.error; 
-        }
-
-        Swal.fire({
-            icon: 'error',
-            title: 'Error de Conexión',
-            text: mensajeError,
-            confirmButtonColor: '#0d6efd'
-        });
-        console.error('Error al validar la seña:', error);
-    }
+  } catch (error) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error de conexión',
+      text: 'No se pudo validar la seña. Verifica que el servidor Flask esté activo.',
+      confirmButtonColor: '#0d6efd'
+    });
+    console.error('Error al validar seña:', error);
+  }
 });
 
+  scoreDisplay.textContent = puntaje;
 });
-
 
