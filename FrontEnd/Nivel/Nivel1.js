@@ -75,6 +75,7 @@ btnValidar.addEventListener('click', async () => {
 
   try {
     const response = await axios.post('http://192.168.100.5:5000/reconocer_letra', {
+      //http://192.168.215.46:5000/reconocer_letra?sensores=19.7&sensores=53.76&sensores=9.99&sensores=41.21&sensores=15.56
       sensores: valoresSensores
     });
 
