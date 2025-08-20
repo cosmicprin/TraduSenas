@@ -32,11 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const mostrarImagen = (letra) => {
     const letraMayus = letra.toUpperCase();
-    if (!/^[A-Z]$/.test(letraMayus)) {
+    if (!/^[AEIOU]$/.test(letraMayus)) {
       Swal.fire({
         icon: 'error',
         title: 'Letra inválida',
-        text: 'Por favor ingresa una letra de A a Z',
+        text: 'Por favor ingresa una vocal (A, E, I, O, U)',
         confirmButtonColor: '#0d6efd'
       });
       return;
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   btnAleatorio.addEventListener('click', () => {
-    const letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const letras = 'AEIOU';
     const aleatoria = letras[Math.floor(Math.random() * letras.length)];
     inputLetra.value = aleatoria;
     mostrarImagen(aleatoria);
@@ -61,82 +61,85 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 btnValidar.addEventListener('click', async () => {
-  const letraUsuario = inputLetra.value.trim().toUpperCase();
+    
+    const letraUsuario = inputLetra.value.trim().toUpperCase();
 
-  if (!/^[A-Z]$/.test(letraUsuario)) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Letra inválida',
-      text: 'Ingresa una letra válida (A–Z) antes de validar',
-      confirmButtonColor: '#0d6efd'
-    });
-    return;
-  }
-
-  try {
-    const response = await axios.post('http://192.168.100.5:5000/reconocer_letra', {
-      //http://192.168.215.46:5000/reconocer_letra?sensores=19.7&sensores=53.76&sensores=9.99&sensores=41.21&sensores=15.56
-      sensores: valoresSensores
-    });
-
-    const letraReconocida = response.data.letra_reconocida;
-
-    if (letraReconocida === letraUsuario) {
-      puntaje = Math.min(puntaje + 5, 25);
-      scoreDisplay.textContent = puntaje;
-
-      Swal.fire({
-        icon: 'success',
-        title: '¡Correcto!',
-        text: `La seña coincide con la letra "${letraUsuario}"`,
-        showClass: {
-          popup: 'animate__animated animate__bounceIn'
-        },
-        hideClass: {
-          popup: 'animate__animated animate__fadeOutUp'
-        },
-        confirmButtonColor: '#198754'
-      });
-
-      if (puntaje === 25) {
+    // Validar que se haya ingresado una letra
+    if (!/^[A-Z]$/.test(letraUsuario)) {
         Swal.fire({
-          icon: 'info',
-          title: '¡Nivel completado!',
-          text: 'Has alcanzado 25 puntos. Puedes avanzar al Nivel 2',
-          confirmButtonText: 'Ir al siguiente nivel',
-          confirmButtonColor: '#0d6efd'
-        }).then(() => {
-          window.location.href = '../Nivel/Nivel2.html'; 
+            icon: 'warning',
+            title: 'Letra inválida',
+            text: 'Ingresa una vocal  (A–E-I-O-U) antes de validar.',
+            confirmButtonColor: '#0d6efd'
         });
-      }
-
-    } else {
-      puntaje = Math.max(puntaje - 1, 0);
-      scoreDisplay.textContent = puntaje;
-
-      Swal.fire({
-        icon: 'error',
-        title: 'Incorrecto',
-        text: `La seña detectada fue "${letraReconocida}", no coincide con "${letraUsuario}"`,
-        showClass: {
-          popup: 'animate__animated animate__shakeX'
-        },
-        hideClass: {
-          popup: 'animate__animated animate__fadeOutDown'
-        },
-        confirmButtonColor: '#dc3545'
-      });
+        return;
     }
 
-  } catch (error) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Error de conexión',
-      text: 'No se pudo validar la seña. Verifica que el servidor Flask esté activo.',
-      confirmButtonColor: '#0d6efd'
-    });
-    console.error('Error al validar seña:', error);
-  }
+    try {
+        // 2. Pedirle a la API la última letra reconocida por el guante
+        const response = await axios.get('http://192.168.215.46:5000/obtener_ultima_letra');
+        
+        const letraReconocida = response.data.letra_reconocida;
+        console.log(`Usuario quiere: ${letraUsuario}, Guante hizo: ${letraReconocida}`);
+
+        // 3. Comparar las letras y actualizar el puntaje
+        if (letraReconocida === letraUsuario) {
+            puntaje = Math.min(puntaje + 5, 25); // Suma 5 puntos, con un máximo de 25
+            
+            Swal.fire({
+                icon: 'success',
+                title: '¡Correcto!',
+                text: `La seña coincide con la letra "${letraUsuario}". ¡+5 puntos!`,
+                timer: 3000, // Se cierra solo después de 3 segundos
+                showConfirmButton: false,
+                showClass: { popup: 'animate__animated animate__bounceIn' },
+                hideClass: { popup: 'animate__animated animate__fadeOutUp' }
+            });
+
+        } else {
+            puntaje = Math.max(puntaje - 1, 0); // Resta 1 punto, con un mínimo de 0
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Incorrecto',
+                text: `Tu seña fue reconocida como "${letraReconocida}", no como "${letraUsuario}". ¡-1 punto!`,
+                showClass: { popup: 'animate__animated animate__shakeX' },
+                hideClass: { popup: 'animate__animated animate__fadeOutDown' },
+                confirmButtonColor: '#dc3545'
+            });
+        }
+        
+        // Actualizar el puntaje en la pantalla
+        scoreDisplay.textContent = puntaje;
+
+        // 4. Verificar si se completó el nivel
+        if (puntaje >= 25) {
+            Swal.fire({
+                icon: 'success',
+                title: '🏆 ¡Nivel completado!',
+                text: 'Has alcanzado 25 puntos. ¡Felicidades!',
+                confirmButtonText: 'Ir al siguiente nivel',
+                confirmButtonColor: '#0d6efd'
+            }).then(() => {
+                // Redirigir a la página de selección de nivel o al siguiente nivel
+                window.location.href = '../Nivel/selectLevel.html'; 
+            });
+        }
+
+    } catch (error) {
+        let mensajeError = 'No se pudo validar la seña. Verifica que el servidor Flask esté activo.';
+        // Mostrar error específico de la API si lo hay (ej. guante desconectado)
+        if (error.response && error.response.data && error.response.data.error) {
+            mensajeError = error.response.data.error;
+        }
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de Conexión',
+            text: mensajeError,
+            confirmButtonColor: '#0d6efd'
+        });
+        console.error('Error al validar seña:', error);
+    }
 });
 
   scoreDisplay.textContent = puntaje;
