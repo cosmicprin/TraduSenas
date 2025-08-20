@@ -77,7 +77,7 @@ btnValidar.addEventListener('click', async () => {
 
     try {
         // 2. Pedirle a la API la última letra reconocida por el guante
-        const response = await axios.get('http://192.168.215.46:5000/obtener_ultima_letra');
+        const response = await axios.get('http://192.168.1.136:5000/obtener_ultima_letra');
         
         const letraReconocida = response.data.letra_reconocida;
         console.log(`Usuario quiere: ${letraUsuario}, Guante hizo: ${letraReconocida}`);

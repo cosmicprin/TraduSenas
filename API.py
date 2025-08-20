@@ -81,7 +81,7 @@ def actualizar_sensores():
 @app.route("/obtener_ultima_letra", methods=["GET"])
 def obtener_ultima_letra():
     # Revisamos si hay datos y si no son muy viejos (ej. 5 segundos)
-    if ultimo_valor_sensores["valores"] is None or (time.time() - ultimo_valor_sensores["timestamp"] > 10):
+    if ultimo_valor_sensores["valores"] is None or (time.time() - ultimo_valor_sensores["timestamp"] > 60):
         return jsonify({"error": "No hay datos recientes del guante. Verifique la conexión."}), 408
     
     # Si hay datos, los procesamos y devolvemos la letra
