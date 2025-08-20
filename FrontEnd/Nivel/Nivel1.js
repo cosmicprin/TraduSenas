@@ -115,7 +115,7 @@ btnValidar.addEventListener('click', () => {
 
             // 4. Ejecutar la validación con la API (el código que ya tenías) 🚀
             try {
-                const response = await axios.get('http://192.168.1.136:5000/obtener_ultima_letra');
+                const response = await axios.get('http://192.168.50.45:5000/obtener_ultima_letra');
                 const letraReconocida = response.data.letra_reconocida;
                 console.log(`Usuario quiere: ${letraUsuario}, Guante hizo: ${letraReconocida}`);
 

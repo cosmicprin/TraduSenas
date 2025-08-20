@@ -82,7 +82,7 @@ ib = IdeaBoard()
 WIFI_SSID = "Via Lactea 2.4"
 WIFI_PASSWORD = "HAKIJUBRULU2"
 
-API_URL = "http://192.168.1.23:5000/reconocer_letra"
+API_URL = "http://192.168.50.45:5000/reconocer_letra"
 
 # ===== CONEXIÓN A WIFI =====
 print("Conectando a WiFi...")
